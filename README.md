@@ -1,8 +1,5 @@
-Here's a complete `README.md` for your **AirWrite Math** project, designed to help others understand, set up, and use your system:
 
----
-
-# ✍️ AirWrite Math: Gesture-Based Math Learning with IMU and AI
+# AirWrite Math: Gesture-Based Math Learning with IMU and AI
 
 **AirWrite Math** is a gesture-driven, interactive math learning platform powered by a wrist-worn ESP32 + MPU6050 sensor and a Flask server. It dynamically generates math questions using Google's Gemini API and evaluates answers from real-time air-written digit recognition using TensorFlow Lite on ESP32.
 

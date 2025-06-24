@@ -66,9 +66,7 @@ AirWrite-Math/
   * Your **Flask server endpoint**
 * Upload to your ESP32
 * Required Arduino Libraries:
-
-  * See `arduino_code/README.md` or Arduino Library Manager
-
+* 
 ---
 
 ### 2️⃣ Flask Server Setup

@@ -1,0 +1,22 @@
+# Ignore environment variables
+.env
+
+# Arduino build outputs
+*.elf
+*.bin
+*.hex
+/build/
+*.ino.*/   # Arduino temporary folders
+
+# VSCode settings (optional)
+.vscode/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# macOS files
+.DS_Store
+
+# Log files
+*.log

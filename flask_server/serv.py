@@ -91,7 +91,7 @@ def evaluate_answers():
         for q, a in zip(questions, answers):
             user_ans = str(a).strip()
             try:
-                correct_ans = str(eval(q.replace("x", "*")))
+                correct_ans = str(int(eval(q.replace("x", "*").replace("/", "//"))))
             except:
                 correct_ans = "0"
 

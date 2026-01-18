@@ -91,23 +91,28 @@ def evaluate_answers():
         for q, a in zip(questions, answers):
             user_ans = str(a).strip()
             
-            # 1. CLEAN THE STRING: Remove '=' and whitespace
-            clean_q = q.replace("=", "").strip()
+            # 1. REMOVE EVERYTHING THAT ISN'T MATH
+            # We remove '?', '=', and any spaces
+            clean_q = q.replace("?", "").replace("=", "").strip()
             
-            # 2. SWAP SYMBOLS: Change human symbols to Python math operators
+            # 2. CONVERT HUMAN SYMBOLS TO PYTHON SYMBOLS
             clean_q = clean_q.replace("x", "*").replace("X", "*")
-            clean_q = clean_q.replace("÷", "//") # Use // for integer results
+            clean_q = clean_q.replace("÷", "//") 
             
+            # 3. IF GEMINI USES SINGLE '/', FORCE IT TO '//' (Integer Division)
+            if "/" in clean_q and "//" not in clean_q:
+                clean_q = clean_q.replace("/", "//")
+        
             try:
-                # 3. EVALUATE: Now clean_q looks like "1 * 3" instead of "1 x 3 ="
+                # Now "12 / 4 = ?" has become "12 // 4"
                 correct_val = int(eval(clean_q))
                 correct_ans = str(correct_val)
             except Exception as e:
-                print(f"Failed to evaluate: {clean_q}. Error: {e}")
+                # This will print the exact string that failed in your terminal
+                print(f"FAILED EVAL: Input was '{q}', Cleaned version was '{clean_q}', Error: {e}")
                 correct_ans = "Error"
         
             is_correct = (user_ans == correct_ans)
-            
             if is_correct:
                 correct_count += 1
             

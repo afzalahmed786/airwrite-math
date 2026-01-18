@@ -90,15 +90,27 @@ def evaluate_answers():
 
         for q, a in zip(questions, answers):
             user_ans = str(a).strip()
+            
+            # 1. CLEAN THE STRING: Remove '=' and whitespace
+            clean_q = q.replace("=", "").strip()
+            
+            # 2. SWAP SYMBOLS: Change human symbols to Python math operators
+            clean_q = clean_q.replace("x", "*").replace("X", "*")
+            clean_q = clean_q.replace("÷", "//") # Use // for integer results
+            
             try:
-                correct_ans = str(int(eval(q.replace("x", "*").replace("/", "//"))))
-            except:
-                correct_ans = "0"
-
-            is_correct = user_ans == correct_ans if user_ans else False
+                # 3. EVALUATE: Now clean_q looks like "1 * 3" instead of "1 x 3 ="
+                correct_val = int(eval(clean_q))
+                correct_ans = str(correct_val)
+            except Exception as e:
+                print(f"Failed to evaluate: {clean_q}. Error: {e}")
+                correct_ans = "Error"
+        
+            is_correct = (user_ans == correct_ans)
+            
             if is_correct:
                 correct_count += 1
-
+            
             evaluations.append({
                 "question": q,
                 "user_answer": user_ans,

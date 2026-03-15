@@ -14,7 +14,7 @@ from flask_cors import CORS
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "GEMINI_API_KEY")
+GEMINI_API_KEY = "AIzaSyCxsbe49Pji3HlPqXxZry3T1OxuuJgvjW0"
 GEMINI_API_URL = (
     "https://generativelanguage.googleapis.com"
     "/v1beta/models/gemini-2.0-flash:generateContent"
@@ -488,6 +488,31 @@ def clear_stats():
 
     return jsonify({"message": msg})
 
+# ── Route: Delete User ────────────────────────────────────────────────────────
+
+@app.route("/users/<raw_user_id>", methods=["DELETE"])
+def delete_user(raw_user_id: str):
+    """
+    Deletes the user record AND all of their sessions.
+    Returns 404 if the user does not exist.
+    """
+    user_id = sanitise_user_id(raw_user_id)
+
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT 1 FROM users WHERE user_id = ?", (user_id,)
+        ).fetchone()
+
+        if row is None:
+            return jsonify({"error": f"User '{user_id}' not found."}), 404
+
+        # Delete sessions first (no FK constraint, but keeps it explicit)
+        conn.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM users   WHERE user_id = ?", (user_id,))
+
+    return jsonify({
+        "message": f"User '{user_id}' and all their sessions have been deleted."
+    })
 
 # ── Entry Point ───────────────────────────────────────────────────────────────
 

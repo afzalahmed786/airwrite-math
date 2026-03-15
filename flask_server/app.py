@@ -14,7 +14,7 @@ from flask_cors import CORS
 
 load_dotenv()
 
-GEMINI_API_KEY = "AIzaSyCxsbe49Pji3HlPqXxZry3T1OxuuJgvjW0"
+GEMINI_API_KEY = "GEMINI_API_KEY"
 GEMINI_API_URL = (
     "https://generativelanguage.googleapis.com"
     "/v1beta/models/gemini-2.0-flash:generateContent"

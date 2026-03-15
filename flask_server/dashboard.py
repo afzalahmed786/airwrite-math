@@ -416,7 +416,21 @@ def clear_user_sessions(user_id: str):
         conn.close()
         st.cache_data.clear()
 
-
+def delete_user_and_sessions(user_id: str):
+    """Delete the user record and all their sessions, then reset the UI."""
+    conn = get_connection()
+    if conn:
+        conn.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM users    WHERE user_id = ?", (user_id,))
+        conn.commit()
+        conn.close()
+        st.cache_data.clear()
+    # Reset selected user so the sidebar doesn't try to display the deleted one
+    if "sel" in st.session_state:
+        del st.session_state["sel"]
+    st.success(f"Patient '{user_id}' removed.")
+    st.rerun()
+    
 # ── Plotly theme ──────────────────────────────────────────────────────────────
 
 def blayout(**kw):
@@ -657,11 +671,13 @@ def render_sidebar(users: list) -> str | None:
             st.session_state.sel = str(users[0]["user_id"])
 
         opts = [f"{u['user_id']}  ·  {u['display_name']}" for u in users]
-        cur  = next((i for i, o in enumerate(opts)
-                     if o.startswith(str(st.session_state.sel))), 0)
-        raw  = st.selectbox("patient", opts, index=cur,
-                             label_visibility="collapsed")
-        sel  = raw.split("  ·  ")[0].strip()
+        cur  = next(
+            (i for i, o in enumerate(opts)
+             if o.startswith(str(st.session_state.sel))), 0
+        )
+        raw = st.selectbox("patient", opts, index=cur,
+                           label_visibility="collapsed")
+        sel = raw.split("  ·  ")[0].strip()
         st.session_state.sel = sel
 
         st.markdown("<div style='height:1.2rem'></div>", unsafe_allow_html=True)
@@ -685,6 +701,35 @@ def render_sidebar(users: list) -> str | None:
 
         st.markdown("<div style='height:1.5rem'></div>", unsafe_allow_html=True)
         st.markdown("---")
+
+        # ── Remove user ───────────────────────────────────────────────────
+        active_user = next(
+            (u for u in users if str(u["user_id"]) == sel), None
+        )
+        if active_user:
+            with st.expander("🗑  Remove Patient"):
+                st.markdown(
+                    f'<p style="font-family:\'Azeret Mono\',monospace;'
+                    f'font-size:.7rem;color:#6b7560;line-height:1.8">'
+                    f'Permanently removes patient '
+                    f'<span style="color:#f04a6e;font-weight:600">'
+                    f'{active_user["display_name"]}</span> '
+                    f'(ID: {active_user["user_id"]}) and all their sessions.'
+                    f'</p>',
+                    unsafe_allow_html=True,
+                )
+                confirmed = st.checkbox(
+                    "I understand this is irreversible",
+                    key=f"del_confirm_{sel}",
+                )
+                if st.button(
+                    f"Remove {active_user['display_name']}",
+                    disabled=not confirmed,
+                    key=f"del_btn_{sel}",
+                ):
+                    delete_user_and_sessions(active_user["user_id"])
+
+        st.markdown("<div style='height:.8rem'></div>", unsafe_allow_html=True)
 
         if st.button("↺  Refresh", use_container_width=True):
             st.cache_data.clear()
